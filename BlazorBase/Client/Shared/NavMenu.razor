@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+<div class="top-row ps-3  navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">BlazorBase</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass rz-background-color-base-100" @onclick="ToggleNavMenu">
+    <RadzenPanelMenu Style="width:270px">
+        <RadzenPanelMenuItem Text="トップページ" Icon="home" Path="/"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="マスタ" Icon="view_list">
+            <RadzenPanelMenuItem Text="事業所マスタ" Path="MstOfficeList"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="ユーザーマスタ" Path="MstLoginUserList"></RadzenPanelMenuItem>
+        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="ファイル操作" Icon="description">
+            <RadzenPanelMenuItem Text="アップロード" Path="UploadTest"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="ダウンロード" Path="DownloadTest"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="PDF表示" Path="PdfTest"></RadzenPanelMenuItem>
+        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="アカウント" Icon="account_box">
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenPanelMenuItem Text="ログアウト" Path="LogoutPage"></RadzenPanelMenuItem>
+                </Authorized>
+                <NotAuthorized>
+                    <RadzenPanelMenuItem Text="ログイン" Path="authentication/login"></RadzenPanelMenuItem>
+                </NotAuthorized>
+            </AuthorizeView>
+        </RadzenPanelMenuItem>
+    </RadzenPanelMenu>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to the event
+        Navigation.LocationChanged += LocationChanged;
+        base.OnInitialized();
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+
+    void LocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        this.collapseNavMenu = true;
+        StateHasChanged();
+    }
+}
